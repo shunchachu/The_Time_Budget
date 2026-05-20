@@ -36,9 +36,15 @@
 
             <div class="right-col">
                 <div class="input-group">
-                    <label>新增連假返鄉區間 (可選多次)</label>
+                    <label>新增返鄉區間與頻率</label>
                     <div class="date-picker-row">
-                        <input type="text" id="visit-range" placeholder="點擊勾選區間 (紅字為連假)">
+                        <input type="text" id="visit-range" placeholder="點選區間 (紅字為連假)" style="flex: 1;">
+                        <select id="repeat-type" class="repeat-select">
+                            <option value="once">單次</option>
+                            <option value="yearly" selected>每年</option>
+                            <option value="monthly">每月</option>
+                            <option value="weekly">每週</option>
+                        </select>
                         <button type="button" id="add-date-btn" class="btn-secondary">新增</button>
                     </div>
                 </div>
@@ -47,9 +53,14 @@
                     <!-- 動態新增的日期標籤會出現在這 -->
                 </div>
 
-                <div class="checkbox-group">
-                    <input type="checkbox" id="weekend-check">
-                    <label for="weekend-check">包含每週末返鄉 <br><small>(週五 20:00 ~ 週日 20:00，約 48 小時)</small></label>
+                <div class="checkbox-group weekend-group">
+                    <div>
+                        <input type="checkbox" id="weekend-check">
+                        <label for="weekend-check">包含每週末返鄉</label>
+                    </div>
+                    <div class="weekend-times" id="weekend-times-container" style="display: none; margin-top: 8px;">
+                        <small>週六 <input type="time" id="weekend-start" value="08:00"> ~ 週日 <input type="time" id="weekend-end" value="20:00"></small>
+                    </div>
                 </div>
 
                 <button type="button" id="calc-btn" class="btn-primary">計算餘額</button>
