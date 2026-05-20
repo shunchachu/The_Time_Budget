@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relic - 時光餘額</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Noto+Serif+TC:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-shape circle-1"></div>
+    <div class="bg-shape circle-2"></div>
+    <div class="bg-shape circle-3"></div>
+
+    <main class="container">
+        <!-- 輸入區 -->
+        <section id="input-section" class="glass-card active layout-grid">
+            <div class="left-col">
+                <h1>時光餘額</h1>
+                <p class="subtitle">如果生命有期限，我們還能見幾次面？</p>
+                <div class="input-group">
+                    <label>你想計算誰的餘額？</label>
+                    <input type="text" id="person-name" required placeholder="如：媽媽">
+                </div>
+                <div class="input-group">
+                    <label>對方目前的年齡</label>
+                    <input type="number" id="current-age" required min="1" max="120" placeholder="例如：60">
+                </div>
+                <div class="input-group">
+                    <label>預估壽命 (台灣平均約 80 歲)</label>
+                    <input type="number" id="life-expectancy" required min="1" max="120" value="80">
+                </div>
+            </div>
+
+            <div class="right-col">
+                <div class="input-group">
+                    <label>新增連假返鄉區間 (可選多次)</label>
+                    <div class="date-picker-row">
+                        <input type="text" id="visit-range" placeholder="點擊勾選區間 (紅字為連假)">
+                        <button type="button" id="add-date-btn" class="btn-secondary">新增</button>
+                    </div>
+                </div>
+                
+                <div class="tags-container" id="date-list">
+                    <!-- 動態新增的日期標籤會出現在這 -->
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="weekend-check">
+                    <label for="weekend-check">包含每週末返鄉 <br><small>(週五 20:00 ~ 週日 20:00，約 48 小時)</small></label>
+                </div>
+
+                <button type="button" id="calc-btn" class="btn-primary">計算餘額</button>
+            </div>
+        </section>
+
+        <!-- 結果區 -->
+        <section id="result-section" class="glass-card hidden">
+            <div id="share-card" class="share-card">
+                <p class="movie-quote">這輩子，你和 <span id="display-name" class="highlight"></span> <br>大約還能再相聚</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-main">
+                        <div id="remaining-hours" class="giant-number">0</div>
+                        <span class="unit">小時</span>
+                        <div id="plus-one-anim" class="plus-one hidden">+24</div>
+                    </div>
+                    <div class="stat-sub">
+                        <div class="sub-item">換算約 <strong id="remaining-days">0</strong> 天</div>
+                        <div class="sub-item">見面約 <strong id="remaining-times">0</strong> 次</div>
+                    </div>
+                </div>
+
+                <p id="encouragement-text" class="encouragement">每一次相聚，都在倒數。<br>別讓等待，成為遺憾。</p>
+            </div>
+            
+            <div class="action-area">
+                <button id="surprise-btn" class="btn-accent">安排驚喜見面 (多陪 24 小時) ✈️</button>
+                <button id="reset-btn" class="btn-text">重新計算</button>
+            </div>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
