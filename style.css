@@ -55,28 +55,9 @@ button { padding: 12px 20px; border-radius: 12px; border: none; font-family: inh
 .float-up { animation: floatUpFade 1s ease-out forwards; }
 .encouragement { font-size: 15px; line-height: 1.6; color: var(--text-secondary); margin-top: 25px; transition: 0.5s; }
 .flatpickr-day.is-holiday { color: #E74C3C !important; font-weight: bold; background: rgba(231,76,60,0.1); }
+.repeat-select { padding: 10px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); font-family: inherit; font-size: 15px; outline: none; cursor: pointer; }
+.weekend-group { flex-direction: column; }
+.weekend-times input[type="time"] { padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); font-family: inherit; width: auto; display: inline-block; background: rgba(255,255,255,0.8); }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 @keyframes floatUpFade { 0% { opacity: 0; transform: translateY(10px) scale(0.8); } 20% { opacity: 1; transform: translateY(0) scale(1.2); } 80% { opacity: 1; transform: translateY(-30px) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1); } }
-.repeat-select {
-    padding: 10px;
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.1);
-    background: rgba(255,255,255,0.8);
-    font-family: inherit;
-    font-size: 15px;
-    outline: none;
-    cursor: pointer;
-}
-.weekend-group {
-    flex-direction: column;
-}
-.weekend-times input[type="time"] {
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid rgba(0,0,0,0.1);
-    font-family: inherit;
-    width: auto;
-    display: inline-block;
-    background: rgba(255,255,255,0.8);
-}
