@@ -1,9 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 監聽週末 Checkbox，控制時間選擇器顯示/隱藏
-    document.getElementById('weekend-check').addEventListener('change', function() {
-        document.getElementById('weekend-times-container').style.display = this.checked ? 'block' : 'none';
-    });
-    
+    // 預設連假日期
     const holidays = [
         "2026-01-01", "2026-02-13", "2026-02-14", "2026-02-15", "2026-02-16", 
         "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20", "2026-02-21", 
@@ -11,8 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
         "2026-06-19", "2026-06-20", "2026-06-21", "2026-09-25", "2026-09-26", "2026-09-27"
     ];
 
-    let dateList = []; // 儲存使用者加入的連假清單
+    let dateList = [];
 
+    // 初始化日曆
     const fp = flatpickr("#visit-range", {
         mode: "range", enableTime: true, time_24hr: true, dateFormat: "Y-m-d H:i",
         onDayCreate: function(dObj, dStr, fp, dayElem) {
@@ -21,7 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 新增日期區間到清單
+    // 週末選項顯示/隱藏自訂時間
+    document.getElementById('weekend-check').addEventListener('change', function() {
+        document.getElementById('weekend-times-container').style.display = this.checked ? 'block' : 'none';
+    });
+
+    // 新增區間與頻率
     document.getElementById('add-date-btn').addEventListener('click', () => {
         const dates = fp.selectedDates;
         if (dates.length !== 2) return alert("請在日曆中點選「抵達」與「離開」的完整時間！");
@@ -29,15 +31,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const hours = (dates[1] - dates[0]) / (1000 * 60 * 60);
         if (hours <= 0) return alert("離開時間必須大於抵達時間！");
 
+        const repeatType = document.getElementById('repeat-type').value;
+        let repeatLabel = "單次";
+        let annualMultiplier = 0;
+
+        if (repeatType === "yearly") { repeatLabel = "每年"; annualMultiplier = 1; }
+        else if (repeatType === "monthly") { repeatLabel = "每月"; annualMultiplier = 12; }
+        else if (repeatType === "weekly") { repeatLabel = "每週"; annualMultiplier = 52; }
+
         const id = Date.now().toString();
         const startStr = formatDate(dates[0]);
         const endStr = formatDate(dates[1]);
 
-        dateList.push({ id, hours, startStr, endStr });
+        dateList.push({ id, hours, startStr, endStr, repeatLabel, annualMultiplier });
         renderTags();
         fp.clear();
     });
 
+    // 格式化日期字串
     function formatDate(dateObj) {
         const m = String(dateObj.getMonth() + 1).padStart(2, '0');
         const d = String(dateObj.getDate()).padStart(2, '0');
@@ -46,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${m}/${d} ${h}:${min}`;
     }
 
+    // 渲染已選擇的標籤
     function renderTags() {
         const container = document.getElementById('date-list');
         container.innerHTML = '';
@@ -57,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const div = document.createElement('div');
             div.className = 'date-chip';
             div.innerHTML = `
-                <span class="chip-info">${item.startStr} ~ ${item.endStr} <span class="chip-hours">(${item.hours.toFixed(1)} 小時)</span></span>
+                <span class="chip-info"><b>[${item.repeatLabel}]</b> ${item.startStr} ~ ${item.endStr} <span class="chip-hours">(${item.hours.toFixed(1)}h)</span></span>
                 <button type="button" onclick="removeDate('${item.id}')">✕</button>
             `;
             container.appendChild(div);
@@ -68,14 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
         dateList = dateList.filter(item => item.id !== id);
         renderTags();
     };
-    renderTags(); // 初始化空狀態
+    renderTags();
 
     let totalLifetimeHours = 0;
     let totalLifetimeDays = 0;
     let totalLifetimeTimes = 0;
     let hasClickedSurprise = false;
 
-    // 計算邏輯
+    // 核心計算邏輯
     document.getElementById('calc-btn').addEventListener('click', () => {
         const name = document.getElementById('person-name').value;
         const currentAge = parseInt(document.getElementById('current-age').value);
@@ -84,26 +96,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!name || isNaN(currentAge) || isNaN(lifeExpectancy)) return alert("請填寫基本資料！");
         if (currentAge >= lifeExpectancy) return alert("預估壽命需大於目前年齡喔！");
-        if (dateList.length === 0 && !includeWeekend) return alert("請至少新增一個連假區間，或是勾選週末返鄉！");
+        if (dateList.length === 0 && !includeWeekend) return alert("請至少新增一個區間，或是勾選週末返鄉！");
 
         const remainingYears = lifeExpectancy - currentAge;
         
-        // 單年數據
-        let yearlyHours = dateList.reduce((sum, item) => sum + item.hours, 0);
-        let yearlyTimes = dateList.length;
+        totalLifetimeHours = 0;
+        totalLifetimeTimes = 0;
 
+        // 計算區間清單
+        dateList.forEach(item => {
+            if (item.annualMultiplier === 0) { // 單次
+                totalLifetimeHours += item.hours;
+                totalLifetimeTimes += 1;
+            } else { // 每年/每月/每週
+                totalLifetimeHours += item.hours * item.annualMultiplier * remainingYears;
+                totalLifetimeTimes += item.annualMultiplier * remainingYears;
+            }
+        });
+
+        // 計算週末自訂時間
         if (includeWeekend) {
-            yearlyHours += (52 * 48); // 每年 52 週，每週末 48 小時
-            yearlyTimes += 52;
+            const startVal = document.getElementById('weekend-start').value.split(':');
+            const endVal = document.getElementById('weekend-end').value.split(':');
+            
+            const startDate = new Date(2000, 0, 1, parseInt(startVal[0]), parseInt(startVal[1]));
+            let endDate = new Date(2000, 0, 2, parseInt(endVal[0]), parseInt(endVal[1]));
+            
+            if (endDate < startDate) endDate.setDate(endDate.getDate() + 1);
+
+            const weekendHours = (endDate - startDate) / (1000 * 60 * 60);
+            
+            if (weekendHours > 0) {
+                totalLifetimeHours += Math.floor(weekendHours * 52 * remainingYears);
+                totalLifetimeTimes += 52 * remainingYears;
+            }
         }
 
-        // 終生數據
-        totalLifetimeHours = Math.floor(yearlyHours * remainingYears);
         totalLifetimeDays = Math.floor(totalLifetimeHours / 24);
-        totalLifetimeTimes = yearlyTimes * remainingYears;
         hasClickedSurprise = false;
 
-        // UI 更新
+        // 更新結果畫面
         document.getElementById('display-name').textContent = name;
         document.getElementById('surprise-btn').style.display = "block";
         document.getElementById('encouragement-text').innerHTML = "每一次相聚，都在倒數。<br>別讓等待，成為遺憾。";
@@ -120,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
+    // 數字跳動動畫
     function animateValue(id, start, end, duration) {
         const obj = document.getElementById(id);
         let startTimestamp = null;
@@ -167,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { btn.style.display = "none"; btn.style.opacity = 1; }, 500);
     });
 
+    // 重新計算按鈕
     document.getElementById('reset-btn').addEventListener('click', () => {
         document.getElementById('result-section').classList.remove('active');
         document.getElementById('result-section').classList.add('hidden');
