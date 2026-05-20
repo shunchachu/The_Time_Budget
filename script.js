@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 監聽週末 Checkbox，控制時間選擇器顯示/隱藏
+    document.getElementById('weekend-check').addEventListener('change', function() {
+        document.getElementById('weekend-times-container').style.display = this.checked ? 'block' : 'none';
+    });
+    
     const holidays = [
         "2026-01-01", "2026-02-13", "2026-02-14", "2026-02-15", "2026-02-16", 
         "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20", "2026-02-21", 
